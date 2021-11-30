@@ -1,0 +1,55 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © ck
+
+//@version=5
+indicator("Technicals", overlay=true)
+
+length = input.int(20, minval=1)
+src = input(close, title="Source")
+mult = input.float(2.0, minval=0.001, maxval=50, title="StdDev")
+basis = ta.sma(src, length)
+dev = mult * ta.stdev(src, length)
+upper = basis + dev
+lower = basis - dev
+offset = input.int(0, "Offset", minval = -500, maxval = 500)
+// plot(basis, "Basis", color=#FF6D00, offset = offset)
+// p1 = plot(upper, "Upper", color=#2962FF, offset = offset)
+// p2 = plot(lower, "Lower", color=#2962FF, offset = offset)
+var isRed = false
+var isGreen = false
+if upper<close
+    isGreen := true
+    isRed := false
+else if lower>close
+    isRed := true
+    isGreen := false
+
+barcolor(isGreen?color.white:color.black)
+
+// fill(p1, p2, title = "Background", color=color.rgb(33, 150, 243, 95))
+
+
+slow = ta.sma(close, 25)
+fast = ta.sma(close, 12)
+ma100 = ta.sma(close, 100)
+// plot(slow, color=color.purple)
+// plot(fast, color=color.yellow)
+// plot(ma100, color=color.blue)
+
+// plotshape(ta.cross(slow, fast), size=size.tiny, color=color.green, location=location.bottom, style=shape.xcross)
+
+bull_eng = (high > high[1]) and (low < low[1]) and (close > open) and (open[1] > close[1])
+top_signal = (close > open) and close > upper and volume > volume[1]
+bottom_signal = close < lower and volume > volume[1]
+go_down = (open > upper) and close < upper
+go_up = (open < lower) and close > lower
+bear_eng = (high > high[1]) and (low < low[1]) and (open > close) and (close[1] > open[1])
+
+plotshape(bull_eng, color=color.green, style=shape.triangleup, location=location.belowbar)
+plotchar(top_signal, color=color.red, char="T", location=location.abovebar)
+plotchar(bottom_signal, color=color.green, char="B", location=location.belowbar)
+plotshape(bear_eng, color=color.red, style=shape.triangledown, location=location.abovebar)
+
+
+
+
