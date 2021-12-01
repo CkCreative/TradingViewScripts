@@ -17,14 +17,23 @@ offset = input.int(0, "Offset", minval = -500, maxval = 500)
 // p2 = plot(lower, "Lower", color=#2962FF, offset = offset)
 var isRed = false
 var isGreen = false
-if upper<close
+var isYellow = false
+if basis<close
     isGreen := true
     isRed := false
-else if lower>close
+else if basis>close
     isRed := true
     isGreen := false
 
-barcolor(isGreen?color.white:color.black)
+if low<basis and high>basis
+    isYellow := true
+else
+    isYellow := false
+    
+
+barcol = isYellow?color.yellow:(isGreen?color.white:color.black)
+
+barcolor(barcol)
 
 // fill(p1, p2, title = "Background", color=color.rgb(33, 150, 243, 95))
 
@@ -38,9 +47,11 @@ ma100 = ta.sma(close, 100)
 
 // plotshape(ta.cross(slow, fast), size=size.tiny, color=color.green, location=location.bottom, style=shape.xcross)
 
-bull_eng = (high > high[1]) and (low < low[1]) and (close > open) and (open[1] > close[1])
-top_signal = (close > open) and close > upper and volume > volume[1]
-bottom_signal = close < lower and volume > volume[1]
+avgVol = ta.sma(volume,7)
+
+bull_eng = (high > high[1]) and (low < low[1]) and (close > open)
+top_signal = high > upper and avgVol < volume
+bottom_signal = low < lower and low < low[1] and avgVol <= volume
 go_down = (open > upper) and close < upper
 go_up = (open < lower) and close > lower
 bear_eng = (high > high[1]) and (low < low[1]) and (open > close) and (close[1] > open[1])
@@ -49,7 +60,6 @@ plotshape(bull_eng, color=color.green, style=shape.triangleup, location=location
 plotchar(top_signal, color=color.red, char="T", location=location.abovebar)
 plotchar(bottom_signal, color=color.green, char="B", location=location.belowbar)
 plotshape(bear_eng, color=color.red, style=shape.triangledown, location=location.abovebar)
-
 
 
 
